@@ -1,0 +1,76 @@
+import random
+
+# Define the dungeon layout
+dungeon_map = {
+    "Entrance": {"North": "Hallway"},
+    "Hallway": {"South": "Entrance", "East": "Treasure Room", "North": "Trap Room"},
+    "Treasure Room": {"West": "Hallway"},
+    "Trap Room": {"South": "Hallway", "North": "Exit"},
+    "Exit": {}
+}
+
+# Game variables
+current_room = "Entrance"
+inventory = []
+game_over = False
+
+def describe_room(room):
+    descriptions = {
+        "Entrance": "You are at the dungeon entrance. It’s eerily quiet.",
+        "Hallway": "A dimly lit hallway stretches ahead.",
+        "Treasure Room": "You see a glittering treasure chest here.",
+        "Trap Room": "The air feels heavy; something dangerous might be near!",
+        "Exit": "You see daylight ahead. Freedom is close!"
+    }
+    return descriptions.get(room, "It's a mysterious place.")
+
+def list_directions(room):
+    return dungeon_map[room].keys()
+
+def move_to_room(direction):
+    global current_room
+    if direction in dungeon_map[current_room]:
+        current_room = dungeon_map[current_room][direction]
+        return True
+    else:
+        return False
+
+def encounter_trap():
+    return random.choice([True, False])
+
+# Game loop
+print("Welcome to 'Escape the Dungeon'!")
+print("Find the Exit to escape. Beware of traps!")
+
+while not game_over:
+    # Describe the current room
+    print(f"\n{describe_room(current_room)}")
+    print(f"Available directions: {', '.join(list_directions(current_room))}")
+    print(f"Your inventory: {', '.join(inventory) if inventory else 'empty'}")
+    
+    # Check if the player has reached the Exit
+    if current_room == "Exit":
+        print("Congratulations! You have escaped the dungeon!")
+        break
+
+    # Handle actions
+    action = input("\nWhat do you want to do? (move/take/quit): ").strip().lower()
+    if action == "move":
+        direction = input("Which direction do you want to go? ").strip().capitalize()
+        if move_to_room(direction):
+            if current_room == "Trap Room" and encounter_trap():
+                print("You triggered a trap! Game over!")
+                game_over = True
+        else:
+            print("You can't go that way.")
+    elif action == "take":
+        if current_room == "Treasure Room" and "Gold" not in inventory:
+            print("You found gold and added it to your inventory!")
+            inventory.append("Gold")
+        else:
+            print("There's nothing to take here.")
+    elif action == "quit":
+        print("Thanks for playing. Goodbye!")
+        game_over = True
+    else:
+        print("Invalid action. Please choose 'move', 'take', or 'quit'.")
